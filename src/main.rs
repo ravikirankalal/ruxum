@@ -9,9 +9,11 @@ async fn main() {
 
     let addr: SocketAddr = SocketAddr::from(([127, 0, 0, 1], 3000)); 
     println!("Listening on http://{}", addr);
+
+    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+
     
-    axum::Server::bind(&addr)
-        .serve(routes_hello.into_make_service())
+    axum::serve(listener,routes_hello)
         .await
         .unwrap();
 }
