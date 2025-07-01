@@ -1,38 +1,27 @@
-
-use axum::{routing::get, routing::Router, Json};
-use axum::extract::Path;
-use serde_json::{json, Value};
 use std::net::SocketAddr;
-
+use axum::{extract::Query, response::{Html, IntoResponse}, routing::get, Router};
 
 #[tokio::main]
 async fn main() {
-    // build our application with a single route
-    let app = Router::new()
-        .route("/", get(root))
-        .route("/health", get(health))
-        .route("/echo/{msg}", get(echo));
+    let routes_hello = Router::new()
+        .route("/hello", 
+        get(hello_handler));
 
-    // run it
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+    let addr: SocketAddr = SocketAddr::from(([127, 0, 0, 1], 3000)); 
     println!("Listening on http://{}", addr);
-    axum::serve(
-        tokio::net::TcpListener::bind(addr).await.unwrap(),
-        app.into_make_service()
-    )
-    .await
-    .unwrap();
+    
+    axum::Server::bind(&addr)
+        .serve(routes_hello.into_make_service())
+        .await
+        .unwrap();
+}
+#[derive(Debug, serde::Deserialize)]
+struct HelloParams {
+    name: Option<String>,
+}
+async fn hello_handler(Query(params):Query<HelloParams>) -> impl IntoResponse {
+    println!("->> {:<12} - handler hello_handler - ", "HANDLER");
+    let name = params.name.as_deref().unwrap_or("World");
+    Html(format!("<h1>Hello, {name}!</h1>"))
 }
 
-
-async fn root() -> &'static str {
-    "Hello, world!"
-}
-
-async fn health() -> Json<Value> {
-    Json(json!({ "status": "ok" }))
-}
-
-async fn echo(Path(msg): Path<String>) -> Json<Value> {
-    Json(json!({ "echo": msg }))
-}
