@@ -1,3 +1,4 @@
 {
     "dependi.rust.lockFileEnabled": true,
+    "rust-analyzer.runnableEnv": {"PATH": "/home/codespace/.cargo/bin:${env:PATH}"}
 }
