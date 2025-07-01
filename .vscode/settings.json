@@ -1,0 +1,4 @@
+{
+    "dependi.rust.lockFileEnabled": true,
+    "rust-analyzer.linkedProjects":["./Cargo.toml"]
+}
